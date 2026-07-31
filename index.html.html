@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Weez Bayon — Web3 Community & Automation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14121B;
+    --panel:#1C1926;
+    --panel-2:#221E2E;
+    --border:#2C2739;
+    --text:#EDE7DE;
+    --muted:#8A8496;
+    --gold:#D6A756;
+    --gold-dim:#8A6E3C;
+    --online:#5FCB8F;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    display:flex;
+    min-height:100vh;
+  }
+  ::selection{ background:var(--gold-dim); color:var(--bg); }
+
+  /* ---------- Sidebar (channel list) ---------- */
+  .sidebar{
+    width:260px;
+    flex-shrink:0;
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    position:sticky;
+    top:0;
+    height:100vh;
+    padding:28px 0;
+    display:flex;
+    flex-direction:column;
+  }
+  .server-name{
+    padding:0 20px 20px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:20px;
+  }
+  .server-name .dot-row{
+    display:flex; align-items:center; gap:8px; margin-bottom:6px;
+  }
+  .status-dot{
+    width:9px; height:9px; border-radius:50%;
+    background:var(--online);
+    box-shadow:0 0 0 0 rgba(95,203,143,0.6);
+    animation:pulse 2.2s infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 rgba(95,203,143,0.5); }
+    70%{ box-shadow:0 0 0 6px rgba(95,203,143,0); }
+    100%{ box-shadow:0 0 0 0 rgba(95,203,143,0); }
+  }
+  .server-name .name{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:1.05rem;
+    font-weight:600;
+  }
+  .server-name .role{
+    color:var(--gold);
+    font-size:0.8rem;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .channel-group{ padding:0 12px; margin-bottom:18px; }
+  .group-label{
+    font-size:0.7rem;
+    letter-spacing:0.08em;
+    color:var(--muted);
+    text-transform:uppercase;
+    padding:6px 10px;
+    font-weight:600;
+  }
+  .channel{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 10px;
+    border-radius:6px;
+    color:var(--muted);
+    text-decoration:none;
+    font-size:0.92rem;
+    transition:background 0.15s, color 0.15s;
+  }
+  .channel:hover, .channel.active{
+    background:var(--panel-2);
+    color:var(--text);
+  }
+  .channel .hash{ color:var(--gold-dim); font-weight:600; }
+  .sidebar-footer{
+    margin-top:auto;
+    padding:14px 20px 0;
+    border-top:1px solid var(--border);
+  }
+  .sidebar-footer a{
+    display:block;
+    color:var(--muted);
+    text-decoration:none;
+    font-size:0.82rem;
+    font-family:'JetBrains Mono', monospace;
+    padding:4px 0;
+  }
+  .sidebar-footer a:hover{ color:var(--gold); }
+
+  /* Mobile top bar toggle */
+  .mobile-bar{ display:none; }
+
+  /* ---------- Main content ---------- */
+  main{ flex:1; max-width:900px; padding:64px 56px 100px; }
+  section{ margin-bottom:88px; scroll-margin-top:40px; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--gold);
+    font-size:0.82rem;
+    letter-spacing:0.04em;
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:9px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 0 0 rgba(214,167,86,0.55);
+    animation:eyebrow-pulse 2.4s infinite;
+    flex-shrink:0;
+  }
+  @keyframes eyebrow-pulse{
+    0%{ box-shadow:0 0 0 0 rgba(214,167,86,0.5); }
+    70%{ box-shadow:0 0 0 7px rgba(214,167,86,0); }
+    100%{ box-shadow:0 0 0 0 rgba(214,167,86,0); }
+  }
+  h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:2.6rem;
+    font-weight:700;
+    line-height:1.15;
+    margin-bottom:16px;
+  }
+  h1 span{ color:var(--gold); }
+  h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:1.6rem;
+    font-weight:600;
+    margin-bottom:20px;
+  }
+  .lede{
+    font-size:1.08rem;
+    color:var(--muted);
+    max-width:56ch;
+    margin-bottom:28px;
+  }
+  .placeholder{ color:var(--gold); }
+  .placeholder::before{ content:"["; }
+  .placeholder::after{ content:"]"; }
+
+  /* stat row on hero */
+  .stat-row{
+    display:flex;
+    gap:36px;
+    flex-wrap:wrap;
+    margin-top:36px;
+    padding-top:28px;
+    border-top:1px solid var(--border);
+  }
+  .stat .num{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:1.9rem;
+    font-weight:700;
+    color:var(--gold);
+  }
+  .stat .label{
+    color:var(--muted);
+    font-size:0.85rem;
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  /* project cards */
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:26px 28px;
+    margin-bottom:18px;
+    transition:border-color 0.15s;
+  }
+  .card:hover{ border-color:var(--gold-dim); }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+  .card-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:1.15rem;
+  }
+  .card-meta{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    color:var(--muted);
+  }
+  .card p{ color:var(--muted); margin-bottom:12px; }
+  .tag-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tag{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--gold);
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem;
+    padding:4px 9px;
+    border-radius:5px;
+  }
+  .card-link{
+    display:inline-block;
+    margin-top:10px;
+    color:var(--gold);
+    text-decoration:none;
+    font-size:0.85rem;
+    font-family:'JetBrains Mono', monospace;
+    border-bottom:1px solid var(--gold-dim);
+  }
+  .card-link:hover{ color:var(--text); }
+
+  /* experience */
+  .exp-item{
+    display:grid;
+    grid-template-columns:150px 1fr;
+    gap:24px;
+    padding:20px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .exp-item:last-child{ border-bottom:none; }
+  .exp-dates{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--muted);
+    font-size:0.82rem;
+    padding-top:3px;
+  }
+  .exp-role{ font-weight:600; font-family:'Space Grotesk', sans-serif; margin-bottom:2px; }
+  .exp-org{ color:var(--gold); font-size:0.9rem; margin-bottom:10px; }
+  .exp-item ul{ color:var(--muted); padding-left:18px; }
+  .exp-item li{ margin-bottom:6px; }
+
+  /* tools grid */
+  .tool-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+    gap:12px;
+  }
+  .tool{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:16px;
+    text-align:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.85rem;
+  }
+
+  /* contact */
+  .contact-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:32px;
+  }
+  .contact-links{ display:flex; flex-wrap:wrap; gap:16px; margin-top:18px; }
+  .contact-links a{
+    color:var(--gold);
+    text-decoration:none;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.9rem;
+    border:1px solid var(--border);
+    padding:8px 14px;
+    border-radius:6px;
+  }
+  .contact-links a:hover{ border-color:var(--gold-dim); }
+
+  footer{
+    color:var(--muted);
+    font-size:0.78rem;
+    font-family:'JetBrains Mono', monospace;
+    padding-top:20px;
+  }
+
+  @media (max-width: 820px){
+    body{ flex-direction:column; }
+    .sidebar{
+      position:relative;
+      width:100%;
+      height:auto;
+      flex-direction:row;
+      overflow-x:auto;
+      padding:16px;
+      align-items:center;
+      gap:6px;
+    }
+    .server-name, .sidebar-footer, .group-label{ display:none; }
+    .channel-group{ display:flex; padding:0; margin:0; gap:6px; }
+    main{ padding:36px 22px 80px; }
+    h1{ font-size:2rem; }
+    .exp-item{ grid-template-columns:1fr; gap:6px; }
+  }
+</style>
+</head>
+<body>
+
+  <nav class="sidebar" aria-label="Section navigation">
+    <div class="server-name">
+      <div class="dot-row">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span class="name">Weez Bayon</span>
+      </div>
+      <div class="role">web3-community-manager</div>
+    </div>
+
+    <div class="channel-group">
+      <div class="group-label">Info</div>
+      <a class="channel" href="#about"><span class="hash">→</span>About</a>
+      <a class="channel" href="#experience"><span class="hash">→</span>Experience</a>
+    </div>
+    <div class="channel-group">
+      <div class="group-label">Work</div>
+      <a class="channel" href="#projects"><span class="hash">→</span>Projects</a>
+      <a class="channel" href="#tools"><span class="hash">→</span>Tools-and-Stack</a>
+    </div>
+    <div class="channel-group">
+      <div class="group-label">Connect</div>
+      <a class="channel" href="#contact"><span class="hash">→</span>Contact</a>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="C:\Users\Preferred Customer\Downloads\Web3_Community_Resume (1).docx" download>↓ download-resume.pdf</a>
+      <a href="https://x.com/weezbayon">↗ find-me-live</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <section id="about">
+      <div class="eyebrow">About</div>
+      <h1>I build communities people <span>actually stay in</span> —<br>then automate the parts that don't need a human.</h1>
+      <p class="lede">
+        Web3 community manager and automation specialist. I design server architecture, run moderation and engagement,
+        and build the n8n / bot workflows that keep a growing community from burning out its team. I specialize in discord building and management, community management, moderation and automation.
+      </p>
+
+      <div class="stat-row">
+        <div class="stat">
+          <div class="num">10,000+</div>
+          <div class="label">largest community grown</div>
+        </div>
+        <div class="stat">
+          <div class="num">2–3</div>
+          <div class="label">communities built &amp; managed</div>
+        </div>
+        <div class="stat">
+          <div class="num">n8n</div>
+          <div class="label">primary automation engine</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="experience">
+      <div class="eyebrow">Experience</div>
+      <h2>Where I've worked</h2>
+
+      <div class="exp-item">
+        <div class="exp-dates">October 2025 – Present</div>
+        <div>
+          <div class="exp-role">Community builder</div>
+          <div class="exp-org">Insightblitz</div>
+          <ul>
+            <li>Built and managed the community server, including moderation and engagement strategies</li>
+            <li>Implemented automation workflows to streamline onboarding and member management</li>
+            <li>Collaborated with the marketing team to drive community growth and retention</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-dates">November 2025 – Present</div>
+        <div>
+          <div class="exp-role">Community Manager</div>
+          <div class="exp-org">ChibiZen</div>
+          <ul>
+            <li>Designed role/permission structure and verification flow for members</li>
+            <li>Built an automations for onboarding, cross-posting, ticket routing, cutting manual mod workload by upto 70%</li>
+            <li>Configured MEE6 for moderation, leveling, and auto-assign roles</li>
+            <li>Also build an automation that make the members to choose between two paths and level up based on the path chosen</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-dates">April 2026 – May 2026</div>
+        <div>
+          <div class="exp-role">Community Manager / Moderator</div>
+          <div class="exp-org">Steel hearts</div>
+          <ul>
+            <li>Built the server and managed the permissions and also moderated</li>
+            <li>Grew Discord from 0 to 20,000+ members within 2 weeks</li>
+            <li>Configured MEE6 for moderation, leveling and ticketing</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="eyebrow">Projects</div>
+      <h2>Selected work</h2>
+
+      <div class="card">
+        <div class="card-top">
+          <div class="card-title">ChibiZen</div>
+          <div class="card-meta">[5,000+ members]</div>
+        </div>
+        <p>It is an NFT project community where I set up the server and built the onboarding flow and automated various processes, resulting in a 40% reduction in member drop-off.</p>
+        <div class="tag-row">
+          <span class="tag">discord</span>
+          <span class="tag">server setup</span>
+          <span class="tag">Admin</span>
+          <span class="tag">mee6</span>
+          <span class="tag">automation</span>
+        </div>
+        <a class="card-link" href="https://discord.gg/chibizen">view server →</a>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div class="card-title">Steel Hearts</div>
+          <div class="card-meta">[20,000+ members]</div>
+        </div>
+        <p>It is a gaming community where I implemented moderation strategies and automated user onboarding, leading to a 60% increase in active users.</p>
+        <div class="tag-row">
+          <span class="tag">Discord</span>
+          <span class="tag">Admin/moderator</span>
+        <span class="tag">automation</span>
+        </div>
+        <a class="card-link" href="https://discord.gg/steelhearts">view server →</a>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div class="card-title">Insightblitz</div>
+          <div class="card-meta">Team</div>
+        </div>
+        <p>Web3 Growth Marketing. All in One Solutions from Development → GTM to Launch • 250M$+ raised • 500+ Partners</p>
+        <div class="tag-row">
+          <span class="tag">moderation</span>
+          <span class="tag">community strategy</span>
+          <span class="tag">marketing</span>
+          <span class="tag">automation</span>
+        </div>
+        <a class="card-link" href="https://x.com/insightblitz_io">view X / Twitter →</a> <br>
+        <a class="card-link" href="https://discord.gg/UacWWbHpQw">view discord →</a>
+      </div>
+    </section>
+
+    <section id="tools">
+      <div class="eyebrow">Tools-and-Stack</div>
+      <h2>What I work with</h2>
+      <div class="tool-grid">
+        <div class="tool">Discord</div>
+        <div class="tool">MEE6</div>
+        <div class="tool">Telegram</div>
+        <div class="tool">n8n</div>
+        <div class="tool">Zapier</div>
+        <div class="tool">GHL</div>
+        <div class="tool">Notion</div>
+        <div class="tool">Sheet</div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="eyebrow">Contact</div>
+      <h2>Let's talk</h2>
+      <div class="contact-card">
+        <p style="color:var(--muted); max-width:50ch;">
+          Open to discord server setup and management, community management, moderation, AI automation, collab manager, community lead,and website development.
+        </p>
+        <div class="contact-links">
+          <a href="mailto:weezbayon@gmail.com">Email</a>
+          <a href="https://x.com/weezbayon">X / Twitter</a>
+          <a href="">Discord - weezbayon</a>
+        </div>
+      </div>
+      <footer>Last online: now · Status: open to work</footer>
+    </section>
+
+  </main>
+
+  <script>
+    // Highlight active channel link on scroll
+    const links = document.querySelectorAll('.channel');
+    const sections = document.querySelectorAll('main section');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const match = document.querySelector('.channel[href="#' + entry.target.id + '"]');
+          if (match) match.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-40% 0px -50% 0px' });
+    sections.forEach(s => io.observe(s));
+  </script>
+
+</body>
+</html>
