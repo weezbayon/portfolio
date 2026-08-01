@@ -81,22 +81,49 @@
     padding:6px 10px;
     font-weight:600;
   }
-  .channel{
+.channel{
+    position:relative;
     display:flex;
     align-items:center;
-    gap:8px;
-    padding:8px 10px;
+    gap:10px;
+    padding:9px 12px 9px 20px;
     border-radius:6px;
     color:var(--muted);
     text-decoration:none;
     font-size:0.92rem;
     transition:background 0.15s, color 0.15s;
   }
+  .channel::before{
+    content:"";
+    position:absolute;
+    left:6px;
+    top:50%;
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:var(--gold-dim);
+    transform:translateY(-50%) scale(1);
+    transition:background 0.15s, transform 0.15s;
+  }
   .channel:hover, .channel.active{
     background:var(--panel-2);
     color:var(--text);
   }
-  .channel .hash{ color:var(--gold-dim); font-weight:600; }
+  .channel:hover::before, .channel.active::before{
+    background:var(--gold);
+    transform:translateY(-50%) scale(1.4);
+  }
+  .channel.active::after{
+    content:"";
+    position:absolute;
+    left:-12px;
+    top:50%;
+    width:3px;
+    height:60%;
+    border-radius:0 3px 3px 0;
+    background:var(--gold);
+    transform:translateY(-50%);
+  }
   .sidebar-footer{
     margin-top:auto;
     padding:14px 20px 0;
@@ -400,17 +427,17 @@
 
     <div class="channel-group">
       <div class="group-label">Info</div>
-      <a class="channel" href="#about"><span class="hash">→</span>About</a>
-      <a class="channel" href="#experience"><span class="hash">→</span>Experience</a>
+      <a class="channel" href="#about">About</a>
+      <a class="channel" href="#experience">Experience</a>
     </div>
     <div class="channel-group">
       <div class="group-label">Work</div>
-      <a class="channel" href="#projects"><span class="hash">→</span>Projects</a>
-      <a class="channel" href="#tools"><span class="hash">→</span>Tools-and-Stack</a>
+      <a class="channel" href="#projects">Projects</a>
+      <a class="channel" href="#tools">Tools-and-Stack</a>
     </div>
     <div class="channel-group">
       <div class="group-label">Connect</div>
-      <a class="channel" href="#contact"><span class="hash">→</span>Contact</a>
+      <a class="channel" href="#contact">Contact</a>
     </div>
 
     <div class="sidebar-footer">
